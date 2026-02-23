@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista kanban dashboard executive -->
+    <record id="view_dashboard_executive_kanban" model="ir.ui.view">
+        <field name="name">dashboard.executive.kanban</field>
+        <field name="model">dashboard.executive</field>
+        <field name="arch" type="xml">
+            <kanban create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="sales_month"/>
+                <field name="sales_prev_month"/>
+                <field name="sales_growth"/>
+                <field name="pending_invoices"/>
+                <field name="overdue_invoices"/>
+                <field name="margin_percent"/>
+                <field name="currency_id"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+
+                            <div class="o_kanban_card_header">
+                                <strong>
+                                    <t t-esc="record.date.value"/>
+                                </strong>
+                            </div>
+
+                            <div class="o_kanban_content">
+                                <div>
+                                    <strong>Ventas del mes</strong>
+                                    <div>
+                                        <t t-esc="record.sales_month.value"/>
+                                        <t t-esc="record.currency_id.value.symbol"/>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <strong>Crecimiento</strong>
+                                    <div>
+                                        <t t-esc="record.sales_growth.value"/>%
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <strong>Facturacion pendiente</strong>
+                                    <div>
+                                        <t t-esc="record.pending_invoices.value"/>
+                                        <t t-esc="record.currency_id.value.symbol"/>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <strong>Margen</strong>
+                                    <div>
+                                        <t t-esc="record.margin_percent.value"/>%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="o_kanban_footer">
+                                <button name="action_refresh_dashboard"
+                                        type="object"
+                                        class="btn btn-primary btn-sm">
+                                    Actualizar
+                                </button>
+                            </div>
+
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <!-- Vistas para dashboard.trend.data -->
+    <record id="view_dashboard_trend_data_graph" model="ir.ui.view">
+        <field name="name">dashboard.trend.data.graph</field>
+        <field name="model">dashboard.trend.data</field>
+        <field name="arch" type="xml">
+            <graph string="Tendencia de Ventas" type="line" sample="1">
+                <field name="date" interval="month"/>
+                <field name="sales" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_dashboard_trend_data_pivot" model="ir.ui.view">
+        <field name="name">dashboard.trend.data.pivot</field>
+        <field name="model">dashboard.trend.data</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis de Tendencia" sample="1">
+                <field name="date" interval="month" type="row"/>
+                <field name="sales" type="measure"/>
+                <field name="order_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_dashboard_trend_analysis" model="ir.actions.act_window">
+        <field name="name">Analisis de Tendencias</field>
+        <field name="res_model">dashboard.trend.data</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="domain">[('dashboard_id', '=', active_id)]</field>
+        <field name="help" type="html">
+            <p>No hay datos suficientes para mostrar el grafico.</p>
+        </field>
+    </record>
+
+
+    <!-- Vista form dashboard executive -->
+    <record id="view_dashboard_executive_form" model="ir.ui.view">
+        <field name="name">dashboard.executive.form</field>
+        <field name="model">dashboard.executive</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_refresh_dashboard"
+                            string="Actualizar"
+                            type="object"
+                            class="btn-primary"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_dashboard_trend_analysis)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-bar-chart">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver Grafico</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Ventas">
+                            <field name="date"/>
+                            <field name="sales_month"/>
+                            <field name="sales_prev_month"/>
+                            <field name="sales_growth"/>
+                        </group>
+
+                        <group string="Facturacion">
+                            <field name="pending_invoices"/>
+                            <field name="overdue_invoices"/>
+                            <field name="margin_percent"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <page string="Top clientes">
+                            <field name="top_customer_ids" nolabel="1">
+                                <tree>
+                                    <field name="rank"/>
+                                    <field name="partner_id"/>
+                                    <field name="total_amount"/>
+                                    <field name="order_count"/>
+                                    <field name="avg_order_value"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Top productos">
+                            <field name="top_product_ids" nolabel="1">
+                                <tree>
+                                    <field name="rank"/>
+                                    <field name="product_id"/>
+                                    <field name="total_amount"/>
+                                    <field name="quantity"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Tendencias">
+                            <field name="trend_data_ids" nolabel="1">
+                                <graph string="Ventas por fecha">
+                                    <field name="date"/>
+                                    <field name="sales"/>
+                                </graph>
+
+                                <tree>
+                                    <field name="date"/>
+                                    <field name="sales"/>
+                                    <field name="order_count"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Notas">
+                            <field name="notes"/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Vista tree dashboard executive -->
+    <record id="view_dashboard_executive_tree" model="ir.ui.view">
+        <field name="name">dashboard.executive.tree</field>
+        <field name="model">dashboard.executive</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="sales_month"/>
+                <field name="sales_growth"/>
+                <field name="pending_invoices"/>
+                <field name="margin_percent"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- Vista search simplificada -->
+    <record id="view_dashboard_executive_search" model="ir.ui.view">
+        <field name="name">dashboard.executive.search</field>
+        <field name="model">dashboard.executive</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date"/>
+
+                <filter name="este_mes"
+                        string="Este mes"
+                        domain="[('date', '>=', context_today())]"/>
+
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_by_date"
+                            string="Fecha"
+                            context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- Accion principal -->
+    <record id="action_dashboard_executive" model="ir.actions.act_window">
+        <field name="name">Dashboard ejecutivo</field>
+        <field name="res_model">dashboard.executive</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="view_dashboard_executive_kanban"/>
+        <field name="help" type="html">
+            <p>No hay dashboards creados.</p>
+        </field>
+    </record>
+
+
+    <!-- Menu -->
+    <menuitem id="menu_dashboard_root"
+              name="Dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_dashboard_executive"
+              name="Dashboard ejecutivo"
+              parent="menu_dashboard_root"
+              action="action_dashboard_executive"
+              sequence="1"/>
+
+</odoo>

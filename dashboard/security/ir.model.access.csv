@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dashboard_executive,dashboard.executive,model_dashboard_executive,base.group_user,1,1,1,1
+access_dashboard_top_customer,dashboard.top.customer,model_dashboard_top_customer,base.group_user,1,1,1,1
+access_dashboard_top_product,dashboard.top.product,model_dashboard_top_product,base.group_user,1,1,1,1
+access_dashboard_trend_data,dashboard.trend.data,model_dashboard_trend_data,base.group_user,1,1,1,1
